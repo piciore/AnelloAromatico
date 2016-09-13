@@ -90,41 +90,25 @@ public class MainDiProva {
 
 		// Execute HTTP Post Request
 		String response=httpclient.execute(httppost, responseHandler);
+		/*System.out.println(response);
+		int i=response.indexOf("\n");
+		response=response.substring(i, response.length());*/
 		System.out.println(response);
+		Gson gson=new Gson();
+		Utente rispostaJson=gson.fromJson(response, Utente.class);
+		//Utente u=(Utente) rispostaJson.getMessage();
+		rispostaJson.stampa(new PrintWriter(System.out));
 		
-		nameValuePairs.size();
+		/*nameValuePairs.size();
 		nameValuePairs.remove(0);
 		nameValuePairs.remove(0);
 		nameValuePairs.add(new BasicNameValuePair("username", "dado"));
 		nameValuePairs.add(new BasicNameValuePair("password", "pass"));
 		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		response=httpclient.execute(httppost, responseHandler);
-		System.out.println(response);
+		System.out.println(response);*/
 		
-		//httpclient.close();
-		
-		CloseableHttpClient httpclient2= HttpClients.createDefault();
-		HttpPost httppost2 = new HttpPost("http://localhost:8081/AnelloAromatico/ServletProva");
-		// Add your data
-		List<NameValuePair> nameValuePairs2 = new ArrayList<NameValuePair>(2);
-		nameValuePairs.add(new BasicNameValuePair("username", "piciore"));
-		nameValuePairs.add(new BasicNameValuePair("password", "lasolita"));
-		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-		
-		ResponseHandler<String> responseHandler2 = new ResponseHandler<String>() {
-            @Override
-            public String handleResponse(final HttpResponse response) throws ClientProtocolException, IOException {
-                int status = response.getStatusLine().getStatusCode();
-                if (status >= 200 && status < 300) {
-                    HttpEntity entity = response.getEntity();
-                    return entity != null ? EntityUtils.toString(entity) : null;
-                } else {
-                    throw new ClientProtocolException("Unexpected response status: " + status);
-                }
-            }
-        };
-        String response2=httpclient.execute(httppost2, responseHandler2);
-		System.out.println(response2);
+		httpclient.close();
 		/*URL obj = new URL("http://localhost:8081/AnelloAromatico/Login1");
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		con.setRequestMethod("POST");

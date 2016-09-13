@@ -67,7 +67,8 @@ public class AnelloAromaticoDb {
 	 * @throws SQLException 
 	 */
 	public AnelloAromaticoDb() throws SQLException{
-		this.connessione=null;
+		throw new SQLException("Facciamo una prova");
+		/*this.connessione=null;
 		this.nomiTabelle=new ArrayList<String>();
 		try{
 			this.connessione=AnelloAromaticoServerUtility.getAnelloAromaticoDBConnection();
@@ -87,7 +88,7 @@ public class AnelloAromaticoDb {
 		this.DBdata=connessione.getMetaData();
 		
 		/*Estrae l'elenco dei nomi delle tabelle e riempie l'ArrayList nomiTabelle*/
-		this.aggiornaElencoTabelle();
+		//this.aggiornaElencoTabelle();
 	}
 	
 	public void chiudi() throws SQLException{
