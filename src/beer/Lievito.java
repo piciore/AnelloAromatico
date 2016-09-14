@@ -36,8 +36,9 @@ public class Lievito extends Ingrediente {
 		return quantità_busta;
 	}
 
-	public void setQuantità_busta(double quantità_busta) {
-		this.quantità_busta = quantità_busta;
+	public void setQuantità_busta(double quantità_busta) throws beerException {
+		if((Double.valueOf(quantità_busta).isNaN())||(quantità_busta>0)) this.quantità_busta = quantità_busta;
+		else throw new beerException("Quantità_busta must be >0");
 	}
 
 	public Lievito(String nome) {

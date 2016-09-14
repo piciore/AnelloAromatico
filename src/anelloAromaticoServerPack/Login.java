@@ -47,7 +47,7 @@ public class Login extends HttpServlet {
 		String username=request.getParameter("username");
 		String password=request.getParameter("password");
 		if((username==null)||(password==null)){
-			AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 1, "Login non riuscito. Parametri mancanti");
+			AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 2, "Login non riuscito. Parametri mancanti");
 		}
 		//Effettuo il login
 		try {

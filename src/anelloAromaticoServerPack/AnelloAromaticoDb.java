@@ -2246,7 +2246,8 @@ public class AnelloAromaticoDb {
 		stmt.setString(7, ing.getTipologia());
 		stmt.setString(8, ing.getNote());
 		if(ing instanceof Malto) {
-			stmt.setInt(3, ((Malto) ing).getColore_ebc());
+			if(((Malto) ing).getColore_ebc()==-1) stmt.setNull(3, java.sql.Types.INTEGER);
+			else stmt.setInt(3, ((Malto) ing).getColore_ebc());
 			stmt.setNull(4, java.sql.Types.FLOAT);
 			stmt.setNull(5, java.sql.Types.BIT);
 			stmt.setNull(6, java.sql.Types.FLOAT);
@@ -2258,7 +2259,8 @@ public class AnelloAromaticoDb {
 			stmt.setDouble(6, ((Lievito) ing).getQuantità_busta());
 		}else if(ing instanceof Luppolo){
 			stmt.setNull(3, java.sql.Types.INTEGER);
-			stmt.setDouble(4, ((Luppolo) ing).getAlfa_acidi());
+			if(Double.valueOf(((Luppolo) ing).getAlfa_acidi()).isNaN()) stmt.setNull(4, java.sql.Types.FLOAT);
+			else stmt.setDouble(4, ((Luppolo) ing).getAlfa_acidi());
 			stmt.setNull(5, java.sql.Types.BIT);
 			stmt.setNull(6, java.sql.Types.FLOAT);
 		}
@@ -2285,7 +2287,8 @@ public class AnelloAromaticoDb {
 		stmt.setString(7, ing.getTipologia());
 		stmt.setString(8, ing.getNote());
 		if(ing instanceof Malto){
-			stmt.setInt(3, ((Malto) ing).getColore_ebc());
+			if(Double.valueOf(((Malto) ing).getColore_ebc()).isNaN()) stmt.setNull(3, java.sql.Types.INTEGER);
+			else stmt.setInt(3, ((Malto) ing).getColore_ebc());
 			stmt.setNull(4, java.sql.Types.FLOAT);
 			stmt.setNull(5, java.sql.Types.BOOLEAN);
 			stmt.setNull(6, java.sql.Types.FLOAT);
@@ -2297,7 +2300,8 @@ public class AnelloAromaticoDb {
 			stmt.setDouble(6, ((Lievito) ing).getQuantità_busta());
 		}else if(ing instanceof Luppolo){
 			stmt.setNull(3, java.sql.Types.INTEGER);
-			stmt.setDouble(4, ((Luppolo) ing).getAlfa_acidi());
+			if(Double.valueOf(((Luppolo) ing).getAlfa_acidi()).isNaN())	stmt.setNull(4, java.sql.Types.FLOAT);
+			else stmt.setDouble(4, ((Luppolo) ing).getAlfa_acidi());
 			stmt.setNull(5, java.sql.Types.BOOLEAN);
 			stmt.setNull(6, java.sql.Types.FLOAT);
 		}

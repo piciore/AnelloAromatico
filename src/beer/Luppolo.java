@@ -21,7 +21,7 @@ public class Luppolo extends Ingrediente {
 	}
 
 	public void setAlfa_acidi(double alfa_acidi) throws beerException {
-		if (alfa_acidi>=0){
+		if ((Double.valueOf(alfa_acidi).isNaN())||(alfa_acidi>=0)){
 			this.alfa_acidi = alfa_acidi;
 		}else throw new beerException("alfa_acidi must be >=0");
 	}
