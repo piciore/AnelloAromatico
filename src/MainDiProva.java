@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
@@ -34,6 +35,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 
 import anelloAromaticoServerPack.AnelloAromaticoDb;
 import anelloAromaticoServerPack.ServerResponse;
@@ -67,12 +70,13 @@ public class MainDiProva {
 
 	public static void main(String[] args) throws Exception {
 		
+		AnelloAromaticoDb db=new AnelloAromaticoDb();
 		CloseableHttpClient httpclient = HttpClients.createDefault();
-		HttpPost httppost = new HttpPost("http://localhost:8081/AnelloAromatico/Login1");
+		HttpPost httppost = new HttpPost("http://localhost:8081/AnelloAromatico/Login");
 		// Add your data
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		nameValuePairs.add(new BasicNameValuePair("username", "piciore"));
-		nameValuePairs.add(new BasicNameValuePair("password", "lasolita"));
+		//nameValuePairs.add(new BasicNameValuePair("password", "lasolita"));
 		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		
 		ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
@@ -89,27 +93,30 @@ public class MainDiProva {
         };
 
 		// Execute HTTP Post Request
+        
+        Gson gson=new Gson();
+        //ServerResponse<Utente> sr=new ServerResponse<Utente>("rtyuio", db.login("piciore", "lasolita"));
+		Type responseType = new TypeToken<ServerResponse<Utente>>(){}.getType();    
+		Type exceptionType = new TypeToken<ServerResponse<Exception>>(){}.getType();
+		//String response=gson.toJson(sr, responseType);
 		String response=httpclient.execute(httppost, responseHandler);
-		/*System.out.println(response);
-		int i=response.indexOf("\n");
-		response=response.substring(i, response.length());*/
-		System.out.println(response);
-		Gson gson=new Gson();
-		Utente rispostaJson=gson.fromJson(response, Utente.class);
-		//Utente u=(Utente) rispostaJson.getMessage();
-		rispostaJson.stampa(new PrintWriter(System.out));
-		
-		/*nameValuePairs.size();
-		nameValuePairs.remove(0);
-		nameValuePairs.remove(0);
-		nameValuePairs.add(new BasicNameValuePair("username", "dado"));
-		nameValuePairs.add(new BasicNameValuePair("password", "pass"));
-		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-		response=httpclient.execute(httppost, responseHandler);
-		System.out.println(response);*/
-		
+		ServerResponse<Utente> sr=gson.fromJson(response, responseType);
+		System.out.println("Json letto: "+ response);
+		if(sr.isExc()){
+			System.out.println("Si è verificato un errore!!!");
+			System.out.println("Sessione "+sr.getSessionId());
+			System.out.println(sr.getErrorNumber()+": "+sr.getExcMessage());
+		}else{
+			//sr=gson.fromJson(response, responseType);
+			Utente u=sr.getCastObj();
+			System.out.println("la classe di u è "+sr.getObj().getClass());
+			u.stampa(new PrintWriter(System.out));
+		}
 		httpclient.close();
-		/*URL obj = new URL("http://localhost:8081/AnelloAromatico/Login1");
+		
+		
+		
+		/*URL obj = new URL("http://localhost:8081/AnelloAromatico/Login");
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		con.setRequestMethod("POST");
 		con.setRequestProperty("User-Agent", "Mozilla/5.0");

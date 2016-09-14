@@ -35,16 +35,19 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>Anello Aromatico</name>
+			<type>2</type>
+			<location>C:/Users/Matteo/Dropbox/Anello Aromatico</location>
+		</link>
+		<link>
 			<name>WebContent/Descrizione_delle_entità.pdf</name>
 			<type>1</type>
-			<location>C:/Users/Matteo/Dropbox/Anello
-				Aromatico/Database/Descrizione_delle_entità.pdf</location>
+			<location>C:/Users/Matteo/Dropbox/Anello Aromatico/Database/Descrizione_delle_entità.pdf</location>
 		</link>
 		<link>
 			<name>WebContent/SchemaER_1.2.pdf</name>
 			<type>1</type>
-			<location>C:/Users/Matteo/Dropbox/Anello
-				Aromatico/Database/SchemaER_1.2.pdf</location>
+			<location>C:/Users/Matteo/Dropbox/Anello Aromatico/Database/SchemaER_1.2.pdf</location>
 		</link>
 	</linkedResources>
 </projectDescription>

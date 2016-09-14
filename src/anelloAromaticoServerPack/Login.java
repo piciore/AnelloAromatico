@@ -1,6 +1,7 @@
 package anelloAromaticoServerPack;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
@@ -8,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 
@@ -16,52 +18,46 @@ import com.google.gson.Gson;
  */
 @WebServlet("/Login")
 public class Login extends HttpServlet {
-	AnelloAromaticoDb db=null;
-	ServerResponse risposta=null;
+	Gson gson;
 	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public Login() {
+        super();
+        gson=new Gson();
+    }
 
-	public Login(){
-		super();
-	}
-	
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("Entro nel login");
-		Utente u=null;
+	protected synchronized void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		PrintWriter out=response.getWriter();
+		ServerResponse<?> sr=null;
+		AnelloAromaticoDb database=null;
+		HttpSession sessione=request.getSession();
+		//Mi connetto al db, altrimenti restituisco un errore
+		try {
+			database=new AnelloAromaticoDb();
+		} catch (SQLException e) {
+			AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 1, e.getMessage());
+		}
+		//Controllo che ci siano i campi username e password
 		String username=request.getParameter("username");
 		String password=request.getParameter("password");
-		Gson gson=new Gson();
-		try {
-			db=new AnelloAromaticoDb();
-			u=db.login(username, password);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			risposta=new ServerResponse(1, e, e.getClass(), e.getMessage());
-			response.getWriter().println(gson.toJson(risposta, ServerResponse.class));
+		if((username==null)||(password==null)){
+			AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 1, "Login non riuscito. Parametri mancanti");
 		}
-		risposta=new ServerResponse(u, u.getClass());
-		System.out.println("Sto per rispondere");
-		response.getWriter().println(gson.toJson(risposta, ServerResponse.class));
-		response.flushBuffer();
-		
-		/*try{
-			System.out.println("Sono stato chiamato");
-			String username=request.getParameter("username");
-			System.out.println(username);
-			String password=request.getParameter("password");
-			AnelloAromaticoDb db=new AnelloAromaticoDb();
-			Gson g=new Gson();
-			Utente u=db.login(username, password);
-			response.getWriter().println(g.toJson(u, Utente.class));
-			response.getWriter().flush();
-			db.chiudi();
-		}catch(SQLException e){
-			e.printStackTrace();
-			response.getWriter().println(e.getErrorCode() + "---" + e.getMessage());
-		}*/
-		
+		//Effettuo il login
+		try {
+			Utente u=database.login(username, password);
+			sr=new ServerResponse<Utente>(sessione.getId(), u);
+			out.println(gson.toJson(sr));
+			out.close();
+		} catch (dbException | SQLException e) {
+			AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 2, e.getMessage());
+		}
+		out.close();
 	}
-
 }

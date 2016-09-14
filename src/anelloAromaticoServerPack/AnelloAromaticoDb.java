@@ -67,8 +67,7 @@ public class AnelloAromaticoDb {
 	 * @throws SQLException 
 	 */
 	public AnelloAromaticoDb() throws SQLException{
-		throw new SQLException("Facciamo una prova");
-		/*this.connessione=null;
+		this.connessione=null;
 		this.nomiTabelle=new ArrayList<String>();
 		try{
 			this.connessione=AnelloAromaticoServerUtility.getAnelloAromaticoDBConnection();
@@ -88,7 +87,7 @@ public class AnelloAromaticoDb {
 		this.DBdata=connessione.getMetaData();
 		
 		/*Estrae l'elenco dei nomi delle tabelle e riempie l'ArrayList nomiTabelle*/
-		//this.aggiornaElencoTabelle();
+		this.aggiornaElencoTabelle();
 	}
 	
 	public void chiudi() throws SQLException{
@@ -2663,28 +2662,22 @@ public class AnelloAromaticoDb {
 	}
 	
 		
-	public Utente login(String username, String password){
-		try{
-			PreparedStatement stmt=this.connessione.prepareStatement("SELECT * FROM utente WHERE username=? AND pw=?");
-			stmt.setString(1, username);
-			stmt.setString(2, password);
-			ResultSet rs=stmt.executeQuery();
-			rs.next();
-			if (rs.getObject("id_utente")==null) return new Utente();
-			else {
-				Utente u=new Utente();
-				u.setNome(rs.getString("nome"));
-				u.setCognome(rs.getString("cognome"));
-				u.setDataNascita(rs.getDate("data_nascita").toLocalDate());
-				u.setEmail(rs.getString("email"));
-				u.setId(rs.getInt("id_utente"));
-				u.setIndirizzo(rs.getString("indirizzo"));
-				return u;
-			}
-		}catch(SQLException e){
-			e.printStackTrace();
+	public Utente login(String username, String password) throws dbException, SQLException{
+		PreparedStatement stmt=this.connessione.prepareStatement("SELECT * FROM utente WHERE username=? AND pw=?");
+		stmt.setString(1, username);
+		stmt.setString(2, password);
+		ResultSet rs=stmt.executeQuery();
+		if(!rs.next()) throw new dbException("Login non riuscito. Username o password errati");
+		else {
+			Utente u=new Utente();
+			u.setNome(rs.getString("nome"));
+			u.setCognome(rs.getString("cognome"));
+			u.setDataNascita(rs.getDate("data_nascita").toLocalDate());
+			u.setEmail(rs.getString("email"));
+			u.setId(rs.getInt("id_utente"));
+			u.setIndirizzo(rs.getString("indirizzo"));
+			return u;
 		}
-		return new Utente();
 	}
 	
 }
