@@ -35,6 +35,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 
@@ -51,6 +52,8 @@ import beer.GittataFermentazione;
 import beer.GittataRaffreddamento;
 import beer.Giudizio;
 import beer.Ingrediente;
+import beer.Lievito;
+import beer.Luppolo;
 import beer.Malto;
 import beer.Ricetta;
 import beer.Rilievo;
@@ -64,6 +67,8 @@ import beer.beerException;
 import fasi.Fermentazione;
 import fasi.Maturazione;
 import fasi.Rifermentazione;
+import visualClient.AnelloAromaticoHttpClient;
+import visualClient.AnelloAromaticoVisualClient;
 
 @SuppressWarnings({ "unused" })
 public class MainDiProva {
@@ -71,12 +76,13 @@ public class MainDiProva {
 	public static void main(String[] args) throws Exception {
 		
 		AnelloAromaticoDb db=new AnelloAromaticoDb();
-		CloseableHttpClient httpclient = HttpClients.createDefault();
+		Gson gson=new GsonBuilder().serializeSpecialFloatingPointValues().serializeNulls().create();
+		/*CloseableHttpClient httpclient = HttpClients.createDefault();
 		HttpPost httppost = new HttpPost("http://localhost:8081/AnelloAromatico/Login");
 		// Add your data
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
 		nameValuePairs.add(new BasicNameValuePair("username", "piciore"));
-		//nameValuePairs.add(new BasicNameValuePair("password", "lasolita"));
+		nameValuePairs.add(new BasicNameValuePair("password", "lasolita"));
 		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		
 		ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
@@ -93,14 +99,49 @@ public class MainDiProva {
         };
 
 		// Execute HTTP Post Request
+        String response=httpclient.execute(httppost, responseHandler);
+        System.out.println(response);
+        Type utenteType = new TypeToken<ServerResponse<Utente>>(){}.getType();
+        ServerResponse<Utente> sr=gson.fromJson(response, utenteType);
+        if(sr.isExc()){
+			System.out.println("Eccezione!!!!");
+			System.out.println(sr.getErrorNumber()+": "+sr.getExcMessage());
+		}else{
+			System.out.println("--------- LOGIN EFFETTUATO ------------------");
+			System.out.println("Sei loggato nel sistema con l'utente seguente");
+			sr.getCastObj().stampa(new PrintWriter(System.out));
+		}
+        httpclient.close();*/
+		AnelloAromaticoVisualClient finestra=new AnelloAromaticoVisualClient();
+        AnelloAromaticoHttpClient client=new AnelloAromaticoHttpClient();
+		ServerResponse<Utente> sr=finestra.getHttpClient().Login("piciore", "lasolita");
+        //Type utenteType = new TypeToken<ServerResponse<Utente>>(){}.getType();
+        if(sr.isExc()){
+			System.out.println("Eccezione!!!!");
+			System.out.println(sr.getErrorNumber()+": "+sr.getExcMessage());
+		}else{
+			System.out.println("--------- LOGIN EFFETTUATO ------------------");
+			System.out.println("Sei loggato nel sistema con l'utente seguente");
+			sr.getCastObj().stampa(new PrintWriter(System.out));
+		}
         
-        Gson gson=new Gson();
-        //ServerResponse<Utente> sr=new ServerResponse<Utente>("rtyuio", db.login("piciore", "lasolita"));
-		Type responseType = new TypeToken<ServerResponse<Utente>>(){}.getType();    
-		Type exceptionType = new TypeToken<ServerResponse<Exception>>(){}.getType();
-		//String response=gson.toJson(sr, responseType);
-		String response=httpclient.execute(httppost, responseHandler);
-		ServerResponse<Utente> sr=gson.fromJson(response, responseType);
+        
+        ServerResponse<ArrayList<Ingrediente>> sr2=client.getIngredientiTipologia("lievito");
+        if(sr2.isExc()){
+        	System.out.println("Eccezione!!!!!");
+        	System.out.println("---------"+sr2.getErrorNumber()+" "+sr2.getExcMessage());
+        }else{
+        	for(int i=0; i<sr2.getCastObj().size(); i++){
+        		sr2.getCastObj().get(i).stampa();
+        	}
+        }
+        
+
+		Ingrediente ing=db.getIngredienteFromId(5);
+		ing.setNome(ing.getNome().concat("___"));
+		System.out.println("Modifica"+db.updateIngrediente(ing));
+		
+        /*ServerResponse<Utente> sr=gson.fromJson(response, responseType);
 		System.out.println("Json letto: "+ response);
 		if(sr.isExc()){
 			System.out.println("Si è verificato un errore!!!");
@@ -112,10 +153,7 @@ public class MainDiProva {
 			System.out.println("la classe di u è "+sr.getObj().getClass());
 			u.stampa(new PrintWriter(System.out));
 		}
-		httpclient.close();
-		
-		
-		
+		httpclient.close();*/		
 		/*URL obj = new URL("http://localhost:8081/AnelloAromatico/Login");
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		con.setRequestMethod("POST");

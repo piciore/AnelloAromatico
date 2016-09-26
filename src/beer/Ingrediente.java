@@ -29,7 +29,7 @@ public class Ingrediente {
 		this.tipo="";
 	}
 
-	public Ingrediente(String nome, String tipo, String tipologia, String note) throws beerException, dbException{
+	public Ingrediente(String nome, String tipo, String tipologia, String note) throws beerException{
 		if(Arrays.asList(possibiliTipologie).contains(tipologia)){
 			this.nome=nome;
 			this.id=-1;
@@ -90,7 +90,7 @@ public class Ingrediente {
 		this.tipo = tipo;
 	}
 
-	public Lievito toLievito() throws beerException, dbException{
+	public Lievito toLievito() throws beerException{
 		if (this.getTipologia().equals("lievito")){
 			Lievito l= new Lievito(nome);
 			l.id=this.id;
@@ -100,7 +100,7 @@ public class Ingrediente {
 		}else throw new beerException("This is not a lievito ingredient");
 	}
 
-	public Lievito toLievito(String stato_materiale, double quantità_busta) throws beerException, dbException{
+	public Lievito toLievito(String stato_materiale, double quantità_busta) throws beerException{
 		Lievito l= this.toLievito();
 		l.setTipologia("lievito");
 		l.setStato_materiale(stato_materiale);

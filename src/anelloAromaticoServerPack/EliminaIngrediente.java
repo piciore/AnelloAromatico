@@ -44,35 +44,45 @@ public class EliminaIngrediente extends HttpServlet {
 		out=response.getWriter();
 		//Ricavo l'ID di sessione. Nel caso la sessione sia nuova, restituisco un errore (non sono loggato)
 		HttpSession sessione=request.getSession();
-		if(sessione.isNew()) AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 
-				4, "Operazione non consentita. Non hai effettuato il login oppure la tua sessione è scaduta");
-		//Provo a connettermi al database, altrimenti restituisco un errore
-		try {
-			database=new AnelloAromaticoDb();
-		} catch (SQLException e) {
+		if(sessione.isNew()) {
 			AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 
-					3, e.getMessage());
-		}
-		int id;
-		//Controllo i parametri...l'id deve essere presente e convertibie in un numero
-		if(request.getParameter("id")==null) AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 3, "Eliminazione non riuscita. Parametri mancanti");
-		else{
-			try{
-				id=Integer.valueOf(request.getParameter("id"));
-				//Elimino l'ingrediente dal database
-				if(database.deleteIngrediente(id)==0) 
-					AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 
-							10, "Eliminazione non riuscita. Controllare l'id");
-				else {
-					//Se tutto va liscio genero la risposta
-					sr=new ServerResponse<Boolean>(sessione.getId(), Boolean.TRUE);
-					out.println(gson.toJson(sr));
-				}
-			}catch(NumberFormatException | SQLException e) {
+					4, "Operazione non consentita. Non hai effettuato il login oppure la tua sessione è scaduta");
+			sessione.invalidate();
+			out.close();
+		}else{
+			//Provo a connettermi al database, altrimenti restituisco un errore
+			try {
+				database=new AnelloAromaticoDb();
+			} catch (SQLException e) {
 				AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 
-						4, "Eliminazione non riuscita. Id non valido");
+						3, e.getMessage());
 			}
+			int id;
+			//Controllo i parametri...l'id deve essere presente e convertibie in un numero
+			if(request.getParameter("id")==null) AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 3, "Eliminazione non riuscita. Parametri mancanti");
+			else{
+				try{
+					id=Integer.valueOf(request.getParameter("id"));
+					//Elimino l'ingrediente dal database
+					if(database.deleteIngrediente(id)==0) 
+						AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 
+								10, "Eliminazione non riuscita. Controllare l'id");
+					else {
+						//Se tutto va liscio genero la risposta
+						sr=new ServerResponse<Boolean>(sessione.getId(), Boolean.TRUE);
+						out.println(gson.toJson(sr));
+					}
+				}catch(NumberFormatException | SQLException e) {
+					AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 
+							4, "Eliminazione non riuscita. Id non valido");
+				}
+			}
+			out.close();
 		}
-		out.close();
+		try {
+			database.chiudi();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

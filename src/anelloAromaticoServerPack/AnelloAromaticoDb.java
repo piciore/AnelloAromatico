@@ -85,7 +85,6 @@ public class AnelloAromaticoDb {
 			}
 		}
 		this.DBdata=connessione.getMetaData();
-		
 		/*Estrae l'elenco dei nomi delle tabelle e riempie l'ArrayList nomiTabelle*/
 		this.aggiornaElencoTabelle();
 	}
@@ -2306,7 +2305,8 @@ public class AnelloAromaticoDb {
 			stmt.setNull(6, java.sql.Types.FLOAT);
 		}
 		stmt.setInt(9, ing.getId());
-		return stmt.executeUpdate();
+		stmt.executeUpdate();
+		return stmt.getUpdateCount();
 	}
 	
 	/*Gestione ricetta*/

@@ -52,9 +52,11 @@ public class Login extends HttpServlet {
 		//Effettuo il login
 		try {
 			Utente u=database.login(username, password);
+			sessione.setAttribute("utente", u);
 			sr=new ServerResponse<Utente>(sessione.getId(), u);
 			out.println(gson.toJson(sr));
 			out.close();
+			database.chiudi();
 		} catch (dbException | SQLException e) {
 			AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 2, e.getMessage());
 		}

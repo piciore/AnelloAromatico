@@ -47,34 +47,45 @@ public class InserisciIngrediente extends HttpServlet {
 		//Utilizzo un GsonBuilder per poter serializzare/deserializzare anche valori speciali come Double.NaN
 		gson=new GsonBuilder().serializeNulls().serializeSpecialFloatingPointValues().create();
 		HttpSession sessione=request.getSession();
-		//Mi connetto al db, altrimenti restituisco un errore
+		if(sessione.isNew()) {
+			AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 4, "Operazione non consentita. Non hai effettuato il login oppure la tua sessione è scaduta");
+			sessione.invalidate();
+			out.close();
+		}else{
+			//Mi connetto al db, altrimenti restituisco un errore
+			try {
+				database=new AnelloAromaticoDb();
+			} catch (SQLException e) {
+				AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 1, e.getMessage());
+			}
+			//Controllo che sia stato passato l'ingrediente
+			if(request.getParameter("ingrediente")==null) AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 2, "Inserimento non riuscito. Parametri mancanti");
+			//Casto l'ingrediente alla classe più specifica per rappresentarlo correttamente
+			Ingrediente ing=gson.fromJson(request.getParameter("ingrediente"), Ingrediente.class);
+			switch(ing.getTipologia().toLowerCase()){
+				case "malto": ing=gson.fromJson(request.getParameter("ingrediente"), Malto.class); break;
+				case "lievito": ing=gson.fromJson(request.getParameter("ingrediente"), Lievito.class); break;
+				case "luppolo": ing=gson.fromJson(request.getParameter("ingrediente"), Luppolo.class); break;
+				default: break;
+			}
+			//Inserisco l'ingrediente nel database. In caso di esito negativo, restituisco un errore
+			try {
+				int id=database.insertIngrediente(ing);
+				if(id>0){
+					ing.setId(id);
+					sr=new ServerResponse<Ingrediente>(sessione.getId(), ing);
+					out.println(gson.toJson(sr));
+					out.close();
+				}else AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 3, "Inserimento non riuscito");
+			} catch (SQLException | dbException e) {
+				AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 100 , e.getMessage());
+			}
+			out.close();
+		}
 		try {
-			database=new AnelloAromaticoDb();
+			database.chiudi();
 		} catch (SQLException e) {
-			AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 1, e.getMessage());
+			e.printStackTrace();
 		}
-		//Controllo che sia stato passato l'ingrediente
-		if(request.getParameter("ingrediente")==null) AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 2, "Inserimento non riuscito. Parametri mancanti");
-		//Casto l'ingrediente alla classe più specifica per rappresentarlo correttamente
-		Ingrediente ing=gson.fromJson(request.getParameter("ingrediente"), Ingrediente.class);
-		switch(ing.getTipologia().toLowerCase()){
-			case "malto": ing=gson.fromJson(request.getParameter("ingrediente"), Malto.class); break;
-			case "lievito": ing=gson.fromJson(request.getParameter("ingrediente"), Lievito.class); break;
-			case "luppolo": ing=gson.fromJson(request.getParameter("ingrediente"), Luppolo.class); break;
-			default: break;
-		}
-		//Inserisco l'ingrediente nel database. In caso di esito negativo, restituisco un errore
-		try {
-			int id=database.insertIngrediente(ing);
-			if(id>0){
-				ing.setId(id);
-				sr=new ServerResponse<Ingrediente>(sessione.getId(), ing);
-				out.println(gson.toJson(sr));
-				out.close();
-			}else AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 3, "Inserimento non riuscito");
-		} catch (SQLException | dbException e) {
-			AnelloAromaticoServerUtility.sendError(out, gson, sessione.getId(), 100 , e.getMessage());
-		}
-		out.close();
 	}
 }
